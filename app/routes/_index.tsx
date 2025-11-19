@@ -4,61 +4,66 @@ import { AppLayout } from '~/components/layouts/AppLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { requireAuth } from '~/lib/auth.server';
 import { formatCurrency } from '~/lib/utils';
+import { executeSingle } from '~/lib/db.server';
+import type { CountResult, SumResult, DashboardStats } from '~/lib/types';
 import { Package, TrendingDown, ShoppingCart, DollarSign } from 'lucide-react';
 
 export async function loader({ request, context }: LoaderFunctionArgs) {
   const { userId, orgId } = await requireAuth(request, context);
   const db = context.DB;
 
-  // Get total products count
-  const productsCount = await db
-    .prepare('SELECT COUNT(*) as count FROM products WHERE organization_id = ? AND deleted_at IS NULL')
-    .bind(orgId)
-    .first<{ count: number }>();
-
-  // Get low stock products count
-  const lowStockCount = await db
-    .prepare(`
-      SELECT COUNT(DISTINCT p.id) as count
-      FROM products p
-      LEFT JOIN stock s ON p.id = s.product_id
-      WHERE p.organization_id = ?
-        AND p.deleted_at IS NULL
-        AND (s.quantity IS NULL OR s.quantity <= p.min_stock_level)
-    `)
-    .bind(orgId)
-    .first<{ count: number }>();
-
-  // Get total stock value
-  const stockValue = await db
-    .prepare(`
-      SELECT COALESCE(SUM(s.quantity * p.cost_price), 0) as value
-      FROM stock s
-      JOIN products p ON s.product_id = p.id
-      WHERE p.organization_id = ?
-    `)
-    .bind(orgId)
-    .first<{ value: number }>();
-
-  // Get recent sales count (last 30 days)
+  // Calculate 30 days ago timestamp
   const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
-  const salesCount = await db
-    .prepare(`
-      SELECT COUNT(*) as count
-      FROM sales
-      WHERE organization_id = ? AND created_at >= ? AND deleted_at IS NULL
-    `)
-    .bind(orgId, thirtyDaysAgo)
-    .first<{ count: number }>();
 
-  return {
-    stats: {
-      totalProducts: productsCount?.count || 0,
-      lowStockItems: lowStockCount?.count || 0,
-      stockValue: stockValue?.value || 0,
-      recentSales: salesCount?.count || 0,
-    },
+  // Run all queries in parallel for better performance
+  const [productsCount, lowStockCount, stockValue, salesCount] = await Promise.all([
+    // Get total products count
+    executeSingle<CountResult>(
+      db,
+      'SELECT COUNT(*) as count FROM products WHERE organization_id = ? AND deleted_at IS NULL',
+      [orgId]
+    ),
+
+    // Get low stock products count
+    executeSingle<CountResult>(
+      db,
+      `SELECT COUNT(DISTINCT p.id) as count
+       FROM products p
+       LEFT JOIN stock s ON p.id = s.product_id
+       WHERE p.organization_id = ?
+         AND p.deleted_at IS NULL
+         AND (s.quantity IS NULL OR s.quantity <= p.min_stock_level)`,
+      [orgId]
+    ),
+
+    // Get total stock value
+    executeSingle<SumResult>(
+      db,
+      `SELECT COALESCE(SUM(s.quantity * p.cost_price), 0) as total
+       FROM stock s
+       JOIN products p ON s.product_id = p.id
+       WHERE p.organization_id = ? AND p.deleted_at IS NULL`,
+      [orgId]
+    ),
+
+    // Get recent sales count (last 30 days)
+    executeSingle<CountResult>(
+      db,
+      `SELECT COUNT(*) as count
+       FROM sales
+       WHERE organization_id = ? AND created_at >= ?`,
+      [orgId, thirtyDaysAgo]
+    ),
+  ]);
+
+  const stats: DashboardStats = {
+    totalProducts: productsCount?.count || 0,
+    lowStockItems: lowStockCount?.count || 0,
+    stockValue: stockValue?.total || 0,
+    recentSales: salesCount?.count || 0,
   };
+
+  return { stats };
 }
 
 export default function Dashboard() {
