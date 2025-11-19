@@ -1,0 +1,27 @@
+node_modules
+/.cache
+/build
+.env
+.dev.vars
+.wrangler
+*.log
+.DS_Store
+coverage
+.vite
+
+# Testing
+/test-results/
+/playwright-report/
+/playwright/.cache/
+
+# Local development
+.local
+*.local.db
+*.local.db-journal
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
