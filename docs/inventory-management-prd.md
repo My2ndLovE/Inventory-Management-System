@@ -1,9 +1,29 @@
 # Inventory Management System - Product Requirements Document (PRD)
 
-**Version:** 1.0  
-**Last Updated:** November 2025  
-**Platform:** Cloudflare (Workers, D1, R2, Pages)  
+**Version:** 1.0
+**Last Updated:** January 2025
+**Platform:** Cloudflare (Workers, D1, R2, Pages)
 **Target:** GitHub Project - Production Ready
+
+---
+
+## 🔄 Technology Updates (January 2025)
+
+This PRD has been updated to reflect the latest technology versions and best practices as of January 2025:
+
+### Major Updates:
+- **React Router v7:** Remix has evolved into React Router v7 (released Nov 2024). All Remix features are now in React Router v7 "framework mode"
+- **Tailwind CSS v4:** Full support with new @theme directive and OKLCH color space
+- **React 19:** Latest stable version with improved performance and features
+- **Vitest 4.0:** Released Oct 2025 with stable browser mode and visual regression testing
+- **Cloudflare D1:** Now includes Time Travel backups (30-day point-in-time recovery), free tier limits enforced from Feb 10, 2025
+- **Clerk Auth:** Updated pricing - 10K MAU + 100 orgs free tier with enhanced features available
+- **shadcn/ui:** Full React 19 and Tailwind v4 compatibility
+
+### Important Notes:
+- References to "Remix" in this document now refer to React Router v7 (they are the same framework)
+- Migration from Remix v2 to React Router v7 is straightforward for projects with future flags enabled
+- All specified technologies are production-ready and actively maintained
 
 ---
 
@@ -59,22 +79,25 @@ A modern, serverless inventory management system designed for small to medium bu
 
 ### 2.1 Frontend Stack
 
-**Framework:** Remix (Full-stack React framework)
-- **Why:** SEO-friendly, progressive enhancement, built-in data loading
-- **Version:** Latest stable
-- **Routing:** File-based routing
-- **Data Fetching:** Remix loaders and actions
+**Framework:** React Router v7 (formerly Remix)
+- **Why:** SEO-friendly, progressive enhancement, built-in data loading, React Server Components support
+- **Version:** React Router v7 (latest - released Nov 2024, Remix is now React Router v7)
+- **Note:** React Router v7 is the evolution of Remix v2. All Remix features are now in React Router v7 "framework mode"
+- **Routing:** File-based routing via `routes.ts`
+- **Data Fetching:** Loaders and actions (same as Remix)
+- **React Version:** React 19 (latest stable)
 
-**UI Library:** shadcn/ui + Tailwind CSS
-- **Why:** Accessible components, highly customizable, modern design
+**UI Library:** shadcn/ui + Tailwind CSS v4
+- **Why:** Accessible components, highly customizable, modern design with Tailwind v4 improvements
 - **Component Library:** shadcn/ui (copy-paste, no dependency bloat)
-- **Styling:** Tailwind CSS v3+
-- **Icons:** Lucide React
+- **Version:** Latest (Full Tailwind v4 and React 19 support as of March 2025)
+- **Styling:** Tailwind CSS v4 (uses new @theme directive, OKLCH colors)
+- **Icons:** Lucide React (latest)
 
-**State Management:** 
-- **Server State:** Remix loaders (no need for React Query)
+**State Management:**
+- **Server State:** React Router loaders (no need for React Query)
 - **Client State:** React hooks (useState, useReducer)
-- **Form State:** Remix Form + Progressive Enhancement
+- **Form State:** React Router Form + Progressive Enhancement
 
 **Charts/Visualization:**
 - **Library:** Recharts
@@ -89,8 +112,10 @@ A modern, serverless inventory management system designed for small to medium bu
 
 **Database:** Cloudflare D1 (SQLite at edge)
 - **Why:** Serverless SQL, global replication, SQL familiarity
-- **Size Limit:** 10GB (free tier - more than enough)
+- **Size Limit:** 10GB per database (Workers Paid plan), 500MB (Free plan)
 - **Location:** Edge-replicated for low latency
+- **Note:** D1 enforces free tier limits starting Feb 10, 2025. Time Travel backups (30 days) now available
+- **Scale Strategy:** Designed for horizontal scaling with multiple databases (per-user/per-tenant)
 
 **Storage:** Cloudflare R2
 - **Why:** S3-compatible, zero egress fees, cheap storage
@@ -98,9 +123,11 @@ A modern, serverless inventory management system designed for small to medium bu
 - **Free Tier:** 10GB storage, 10M Class A operations/month
 
 **Authentication:** Clerk
-- **Why:** Drop-in auth, free tier generous (10k MAU), multi-tenant ready
-- **Features:** Email/password, social logins, user management
-- **Free Tier:** 10,000 monthly active users
+- **Why:** Drop-in auth, generous free tier, multi-tenant ready, excellent developer experience
+- **Features:** Email/password, social logins, user management, breach detection, organizations support
+- **Free Tier:** 10,000 monthly active users (MAU) + 100 monthly active orgs, 3 free admin seats
+- **Pricing After Free Tier:** Pro plan required after limits, enhanced features available ($100/month add-ons)
+- **Note:** All pro features available in development instances for testing without trial period
 
 **Cache Layer:** Cloudflare KV (optional)
 - **Why:** Ultra-fast key-value storage at edge
@@ -109,11 +136,14 @@ A modern, serverless inventory management system designed for small to medium bu
 
 ### 2.3 Additional Tools
 
-**Barcode Generation:** bwip-js (server-side)
-- **Formats:** CODE128, EAN13, QR Code
-- **Implementation:** Generate on-demand via API
+**Barcode Generation:** bwip-js (server-side) or JsBarcode (browser-based)
+- **Primary:** bwip-js - supports 100+ barcode types (CODE128, EAN13, QR Code, PDF417, etc.)
+- **Alternative:** JsBarcode - simpler implementation for standard 1D barcodes (browser-friendly)
+- **Implementation:** Generate on-demand via API (bwip-js) or client-side (JsBarcode)
 
-**PDF Generation:** @react-pdf/renderer
+**PDF Generation:** @react-pdf/renderer (v4.3.1) or alternatives
+- **Primary:** @react-pdf/renderer - Latest v4.3.1, 860K+ weekly downloads, React component-based
+- **Alternatives:** jsPDF (2.6M+ downloads), pdfmake (940K+ downloads), pdfme (template-based)
 - **Purpose:** Invoices, reports, stock lists
 - **Rendering:** Server-side PDF generation
 
@@ -130,11 +160,13 @@ A modern, serverless inventory management system designed for small to medium bu
 
 ### 2.4 Development Tools
 
-**Language:** TypeScript (strict mode)
-**Package Manager:** pnpm
-**Linting:** ESLint + Prettier
-**Testing:** Vitest + Testing Library
-**Database Migrations:** Wrangler D1 migrations
+**Language:** TypeScript (strict mode) - Latest TypeScript 5.x
+**Package Manager:** pnpm (latest)
+**Linting:** ESLint + Prettier (latest)
+**Testing:** Vitest v4.0+ (released Oct 2025) + Testing Library
+- **Note:** Vitest 4.0 includes stable browser mode, visual regression testing, Playwright trace integration
+- **Angular 21+** now uses Vitest as default, showing strong ecosystem adoption
+**Database Migrations:** Wrangler D1 migrations (built-in)
 **CI/CD:** GitHub Actions
 **Hosting:** Cloudflare Pages
 
@@ -143,11 +175,12 @@ A modern, serverless inventory management system designed for small to medium bu
 ## 3. System Architecture
 
 ### 3.1 Architecture Pattern
-**Pattern:** Serverless Monolith (Remix full-stack)
+**Pattern:** Serverless Monolith (React Router v7 full-stack)
 - All code in one repository
-- Remix handles both frontend and backend
-- Cloudflare Workers execute Remix server-side code
+- React Router v7 handles both frontend and backend (formerly Remix)
+- Cloudflare Workers execute React Router server-side code
 - D1 database attached to Workers
+- React Server Components (RSC) support available
 
 ### 3.2 Request Flow
 
@@ -158,7 +191,7 @@ Cloudflare Global Network (Edge)
     ↓
 Cloudflare Pages (Static Assets)
     ↓
-Cloudflare Worker (Remix SSR)
+Cloudflare Worker (React Router v7 SSR)
     ↓
 ├─→ D1 Database (Data)
 ├─→ R2 Storage (Images/Files)
@@ -181,18 +214,18 @@ Response to User
 2. Check business rules
 3. Execute transaction in D1
 4. Invalidate cache
-5. Revalidate UI (Remix automatically)
+5. Revalidate UI (React Router automatically)
 6. Return success/error
 
 **File Upload Flow:**
 1. Client uploads file (FormData)
-2. Remix action receives file
+2. React Router action receives file
 3. Validate file (type, size)
 4. Upload to R2 storage
 5. Store R2 URL in D1
 6. Return success
 
-### 3.4 Folder-Based Routing (Remix)
+### 3.4 File-Based Routing (React Router v7)
 
 ```
 app/routes/
@@ -854,9 +887,9 @@ Total Amount = Discounted Amount + Tax Amount
 
 ### 6.1 API Design Principles
 
-**Pattern:** RESTful-ish + Remix Actions
-- Use Remix loaders for GET (SSR data fetching)
-- Use Remix actions for POST/PUT/DELETE (form submissions)
+**Pattern:** RESTful-ish + React Router Actions
+- Use React Router loaders for GET (SSR data fetching)
+- Use React Router actions for POST/PUT/DELETE (form submissions)
 - API routes only for special cases (barcode generation, exports)
 
 **Response Format:**
@@ -885,7 +918,7 @@ Total Amount = Discounted Amount + Tax Amount
 - 404: Not Found
 - 500: Internal Server Error
 
-### 6.2 Remix Loader Examples
+### 6.2 React Router Loader Examples
 
 #### Get Products List
 ```typescript
@@ -993,7 +1026,7 @@ export async function loader({ params, context }: LoaderFunctionArgs) {
 }
 ```
 
-### 6.3 Remix Action Examples
+### 6.3 React Router Action Examples
 
 #### Create Product
 ```typescript
@@ -1761,8 +1794,8 @@ inventory-management/
 ├── package.json
 ├── pnpm-lock.yaml
 ├── tsconfig.json
-├── tailwind.config.ts
-├── remix.config.js
+├── tailwind.config.ts                   # Tailwind v4 configuration
+├── react-router.config.ts               # React Router v7 config (formerly remix.config.js)
 ├── wrangler.toml                        # Cloudflare Workers config
 └── README.md
 ```
@@ -1880,10 +1913,10 @@ pnpm run dev
 ```
 
 **Local Environment:**
-- Remix dev server with HMR
+- React Router v7 dev server with HMR and Vite
 - Local D1 database (SQLite file)
 - Clerk development keys
-- Local R2 emulation (Miniflare)
+- Local R2 emulation (Miniflare/Wrangler)
 
 ### 12.2 Staging Environment
 
@@ -1993,12 +2026,17 @@ Proxy: Enabled (orange cloud)
 
 ### 13.1 Unit Tests
 
-**Framework:** Vitest
+**Framework:** Vitest v4.0+
 
 **Coverage:**
 - Business logic functions (stock calculations, sale totals)
 - Validators (Zod schemas)
 - Utilities (date formatting, barcode generation)
+
+**Vitest 4.0 Features:**
+- Stable browser mode for testing in real browser environments
+- Visual regression testing capabilities
+- Playwright trace integration for better debugging
 
 **Example:**
 ```typescript
@@ -2019,12 +2057,13 @@ describe('calculateSaleTotal', () => {
 
 ### 13.2 Integration Tests
 
-**Framework:** Vitest + MSW (Mock Service Worker)
+**Framework:** Vitest v4.0+ + MSW (Mock Service Worker)
 
 **Coverage:**
-- Remix loaders and actions
+- React Router loaders and actions
 - Database operations (use in-memory SQLite)
 - File uploads
+- Browser-based integration tests using Vitest 4.0 browser mode
 
 **Example:**
 ```typescript
@@ -2208,6 +2247,9 @@ GROUP BY p.id;
 - Max 1000 rows per query result (use pagination)
 - Max 1MB per row
 - Read-after-write consistency (eventual consistency for replicas)
+- Single-threaded processing per database (queries processed sequentially)
+- Free tier: 500MB per database, Paid tier: 10GB per database (cannot be increased)
+- Free tier limits enforced from February 10, 2025
 
 **Cloudflare Workers Limitations:**
 - Max 50ms CPU time per request (free tier)
@@ -2239,13 +2281,21 @@ GROUP BY p.id;
 
 ## 16. Conclusion
 
-This PRD provides a comprehensive blueprint for building a production-ready Inventory Management System using Remix and Cloudflare's serverless stack. The system demonstrates:
+This PRD provides a comprehensive blueprint for building a production-ready Inventory Management System using React Router v7 (formerly Remix) and Cloudflare's serverless stack with the latest 2025 technologies. The system demonstrates:
 
-1. **Full-stack expertise:** Frontend (Remix, React), Backend (Cloudflare Workers), Database (D1)
-2. **Business logic:** Stock tracking, sales recording, multi-location
-3. **Modern architecture:** Serverless, edge computing, cost-efficient
-4. **Production quality:** Security, testing, performance, scalability
-5. **Real-world value:** Actually usable by small businesses
+1. **Full-stack expertise:** Frontend (React Router v7, React 19), Backend (Cloudflare Workers), Database (D1)
+2. **Modern tech stack:** Tailwind v4, Vitest 4.0, shadcn/ui, all production-ready and actively maintained
+3. **Business logic:** Stock tracking, sales recording, multi-location support
+4. **Modern architecture:** Serverless, edge computing, cost-efficient, React Server Components ready
+5. **Production quality:** Security, testing, performance, scalability
+6. **Real-world value:** Actually usable by small businesses
+
+**Technology Highlights (2025):**
+- React Router v7 with Vite compiler and framework mode
+- Tailwind CSS v4 with OKLCH color space and @theme directive
+- Vitest 4.0 with browser mode and visual regression testing
+- Cloudflare D1 with Time Travel backups (30-day recovery)
+- Clerk with generous free tier (10K MAU + 100 orgs)
 
 **Next Steps:**
 1. Review and approve this PRD
