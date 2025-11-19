@@ -8,6 +8,8 @@ import {
   FileText,
   Settings,
   X,
+  FolderTree,
+  MapPin,
 } from 'lucide-react';
 import { cn } from '~/lib/utils';
 import { Button } from '~/components/ui/button';
@@ -20,6 +22,8 @@ interface SidebarProps {
 const navItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/products', label: 'Products', icon: Package },
+  { to: '/categories', label: 'Categories', icon: FolderTree },
+  { to: '/locations', label: 'Locations', icon: MapPin },
   { to: '/inventory', label: 'Inventory', icon: Warehouse },
   { to: '/sales', label: 'Sales', icon: ShoppingCart },
   { to: '/suppliers', label: 'Suppliers', icon: Users },
